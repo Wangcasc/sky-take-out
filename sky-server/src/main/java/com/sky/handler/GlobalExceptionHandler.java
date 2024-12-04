@@ -19,7 +19,7 @@ public class GlobalExceptionHandler {
      * @return
      */
     @ExceptionHandler
-    public Result exceptionHandler(BaseException ex){
+    public Result exceptionHandler(BaseException ex){ //BaseException是自定义的所有业务异常的父类
         log.error("异常信息：{}", ex.getMessage());
         return Result.error(ex.getMessage());
     }
