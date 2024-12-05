@@ -1,6 +1,7 @@
 package com.sky.controller.admin;
 
 import com.sky.constant.JwtClaimsConstant;
+import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.entity.Employee;
 import com.sky.properties.JwtProperties;
@@ -8,6 +9,8 @@ import com.sky.result.Result;
 import com.sky.service.EmployeeService;
 import com.sky.utils.JwtUtil;
 import com.sky.vo.EmployeeLoginVO;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,12 +27,14 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/employee")
 @Slf4j
+@Api(tags = "员工相关接口") //swagger接口文档的分组 用于说明接口
 public class EmployeeController {
 
     @Autowired
     private EmployeeService employeeService;
     @Autowired
     private JwtProperties jwtProperties;
+
 
     /**
      * 登录
@@ -38,6 +43,7 @@ public class EmployeeController {
      * @return
      */
     @PostMapping("/login") //访问路径
+    @ApiOperation("员工登录") //swagger接口文档的说明
     public Result<EmployeeLoginVO> login(@RequestBody EmployeeLoginDTO employeeLoginDTO) {
         log.info("员工登录：{}", employeeLoginDTO); //打印日志，需要引入lombok @Slf4j注解
 
@@ -70,7 +76,25 @@ public class EmployeeController {
      * @return
      */
     @PostMapping("/logout")
+    @ApiOperation("员工退出") //swagger接口文档的说明
     public Result<String> logout() {
+        return Result.success();
+    }
+
+    /**
+     * 添加员工
+     *
+     * @param employeeDTO
+     * @return
+     */
+    @PostMapping
+    @ApiOperation("添加员工") //swagger接口文档的说明
+    public Result addEmployee(@RequestBody EmployeeDTO employeeDTO) {
+        log.info("添加员工：{}", employeeDTO);
+
+        //调用service层的addEmployee方法 会插入数据库
+        employeeService.addEmployee(employeeDTO);
+
         return Result.success();
     }
 

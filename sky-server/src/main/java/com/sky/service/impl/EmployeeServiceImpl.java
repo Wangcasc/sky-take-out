@@ -1,17 +1,24 @@
 package com.sky.service.impl;
 
 import com.sky.constant.MessageConstant;
+import com.sky.constant.PasswordConstant;
 import com.sky.constant.StatusConstant;
+import com.sky.context.BaseContext;
+import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.entity.Employee;
 import com.sky.exception.AccountLockedException;
 import com.sky.exception.AccountNotFoundException;
+import com.sky.exception.BaseException;
 import com.sky.exception.PasswordErrorException;
 import com.sky.mapper.EmployeeMapper;
 import com.sky.service.EmployeeService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+
+import java.time.LocalDateTime;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -52,6 +59,44 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         //3、返回实体对象
         return employee;
+    }
+
+    @Override
+    public void addEmployee(EmployeeDTO employeeDTO) {
+        //解析DTO对象
+        ////判断用户名是否存在
+        //Employee employee = employeeMapper.getByUsername(employeeDTO.getUsername());
+        //if (employee != null) {
+        //    //用户名已存在
+        //    throw new BaseException("用户名已存在");
+        //}
+        //改为了在全局异常处理器中处理
+
+        //判断手机号是11位合法号码
+        if (employeeDTO.getPhone().length() != 11) {
+            throw new BaseException("手机号不合法");
+        }
+        //判断身份证号是18位合法号码
+        if (employeeDTO.getIdNumber().length() != 18) {
+            throw new BaseException("身份证号不合法");
+        }
+
+        //新建要记录的员工对象
+        Employee employee = new Employee();
+        BeanUtils.copyProperties(employeeDTO, employee); //将DTO对象的属性拷贝到实体对象中 前提是属性名相同
+        employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes())); //默认密码123456 MD5加密
+        employee.setStatus(StatusConstant.ENABLE); //默认启用
+        //添加额外操作信息
+        employee.setCreateTime(LocalDateTime.now()); //创建时间
+        employee.setUpdateTime(LocalDateTime.now()); //更新时间
+        //创建人 从ThreadLocal中获取
+        employee.setCreateUser(BaseContext.getCurrentId());
+        //更新人 从ThreadLocal中获取
+        employee.setUpdateUser(BaseContext.getCurrentId());
+
+        //调用DAO层方法插入数据
+        employeeMapper.insert(employee);
+
     }
 
 }
