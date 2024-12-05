@@ -34,8 +34,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     /**
      * 员工登录
      *
-     * @param employeeLoginDTO
-     * @return
+     * @param employeeLoginDTO 登录信息
+     * @return Employee 员工信息
      */
     public Employee login(EmployeeLoginDTO employeeLoginDTO) {
         String username = employeeLoginDTO.getUsername();
@@ -57,7 +57,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
         }
 
-        if (employee.getStatus() == StatusConstant.DISABLE) { //判断账号是否启用
+        if (employee.getStatus().equals(StatusConstant.DISABLE)) { //判断账号是否启用
             //账号被锁定
             throw new AccountLockedException(MessageConstant.ACCOUNT_LOCKED);
         }
@@ -70,7 +70,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public void addEmployee(EmployeeDTO employeeDTO) {
         //解析DTO对象
         ////判断用户名是否存在
-        //Employee employee = employeeMapper.getByUsername(employeeDTO.getUsername());
+        // Employee employee = employeeMapper.getByUsername(employeeDTO.getUsername());
         //if (employee != null) {
         //    //用户名已存在
         //    throw new BaseException("用户名已存在");
@@ -106,8 +106,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     /**
      * 分页查询员工
-     * @param employeePageQueryDTO
-     * @return
+     * @param employeePageQueryDTO 请求参数
+     * @return PageResult 分页结果
      */
     @Override
     public PageResult pageEmployee(EmployeePageQueryDTO employeePageQueryDTO) {
@@ -125,7 +125,21 @@ public class EmployeeServiceImpl implements EmployeeService {
         return pageResult;
     }
 
-
+    /**
+     * 启用或停用员工
+     * @param status 启用或停用
+     * @param id    员工ID
+     */
+    @Override
+    public void startOrStopEmployee(Integer status, Long id) {
+        //调用DAO层方法更新数据 编写一个通用update方法 方便以后扩展
+        Employee employee = new Employee();
+        employee.setId(id);
+        employee.setStatus(status);
+        employee.setUpdateTime(LocalDateTime.now());
+        employee.setUpdateUser(BaseContext.getCurrentId());
+        employeeMapper.update(employee);
+    }
 
 
 }

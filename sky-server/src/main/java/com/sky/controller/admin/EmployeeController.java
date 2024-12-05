@@ -114,4 +114,21 @@ public class EmployeeController {
 
     }
 
+    /**
+     * 启用或停用员工
+     * @param status
+     * @param id
+     * @return
+     */
+    @PostMapping("/status/{status}")
+    @ApiOperation("启用或停用员工") //swagger接口文档的说明
+    public Result startOrStopEmployee(@PathVariable Integer status,  Long id) {
+        log.info("启用或停用员工：status={}, id={}", status, id);
+
+        //调用service层的startOrStopEmployee方法 会更新数据库
+        employeeService.startOrStopEmployee(status, id);
+
+        return Result.success();
+    }
+
 }
