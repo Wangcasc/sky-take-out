@@ -116,6 +116,13 @@ public class EmployeeServiceImpl implements EmployeeService {
         PageHelper.startPage(employeePageQueryDTO.getPage(), employeePageQueryDTO.getPageSize());
         //调用DAO层方法查询数据
         List<Employee> employeeList = employeeMapper.pageEmployee(employeePageQueryDTO);
+
+        //把密码都置空,不返回密码,保护用户隐私,这样在前端调试界面也看不到密码
+        for (Employee employee : employeeList) {
+            employee.setPassword("********");
+        }
+
+
         Page<Employee> page = (Page<Employee>) employeeList; //强转为Page类型
         //将查询结果封装到PageResult对象中
         PageResult pageResult = new PageResult();
@@ -138,6 +145,39 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setStatus(status);
         employee.setUpdateTime(LocalDateTime.now());
         employee.setUpdateUser(BaseContext.getCurrentId());
+        employeeMapper.update(employee);
+    }
+
+    @Override
+    public Employee getByUserId(Long id) {
+
+        Employee employee = employeeMapper.getByUserId(id);
+        //把密码都置空,不返回密码,保护用户隐私,这样在前端调试界面也看不到密码
+        employee.setPassword("********");
+
+        return employee;
+    }
+
+    @Override
+    public void updateEmployee(EmployeeDTO employeeDTO) {
+        //判断手机号是11位合法号码
+        if (employeeDTO.getPhone().length() != 11) {
+            throw new BaseException("手机号不合法");
+        }
+        //判断身份证号是18位合法号码
+        if (employeeDTO.getIdNumber().length() != 18) {
+            throw new BaseException("身份证号不合法");
+        }
+
+        //新建要记录的员工对象
+        Employee employee = new Employee();
+        BeanUtils.copyProperties(employeeDTO, employee); //将DTO对象的属性拷贝到实体对象中 前提是属性名相同
+        //添加额外操作信息
+        employee.setUpdateTime(LocalDateTime.now()); //更新时间
+        //更新人 从ThreadLocal中获取
+        employee.setUpdateUser(BaseContext.getCurrentId());
+
+        //调用DAO层方法插入数据
         employeeMapper.update(employee);
     }
 

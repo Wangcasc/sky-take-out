@@ -38,8 +38,8 @@ public class EmployeeController {
     /**
      * 登录
      *
-     * @param employeeLoginDTO
-     * @return
+     * @param employeeLoginDTO 登录信息
+     * @return 员工登录信息
      */
     @PostMapping("/login") //访问路径
     @ApiOperation("员工登录") //swagger接口文档的说明
@@ -72,7 +72,7 @@ public class EmployeeController {
     /**
      * 退出
      *
-     * @return
+     * @return 退出成功
      */
     @PostMapping("/logout")
     @ApiOperation("员工退出") //swagger接口文档的说明
@@ -83,8 +83,8 @@ public class EmployeeController {
     /**
      * 添加员工
      *
-     * @param employeeDTO
-     * @return
+     * @param employeeDTO 新增员工信息
+     * @return 添加成功
      */
     @PostMapping
     @ApiOperation("添加员工") //swagger接口文档的说明
@@ -99,8 +99,8 @@ public class EmployeeController {
 
     /**
      * 分页查询员工
-     * @param employeePageQueryDTO
-     * @return
+     * @param employeePageQueryDTO 查询条件
+     * @return 员工分页信息
      */
     @GetMapping("/page")
     @ApiOperation("分页查询员工") //swagger接口文档的说明
@@ -116,9 +116,9 @@ public class EmployeeController {
 
     /**
      * 启用或停用员工
-     * @param status
-     * @param id
-     * @return
+     * @param status 启用或停用
+     * @param id 员工ID
+     * @return 启用或停用成功
      */
     @PostMapping("/status/{status}")
     @ApiOperation("启用或停用员工") //swagger接口文档的说明
@@ -127,6 +127,37 @@ public class EmployeeController {
 
         //调用service层的startOrStopEmployee方法 会更新数据库
         employeeService.startOrStopEmployee(status, id);
+
+        return Result.success();
+    }
+
+    /**
+     * 根据员工id查询员工信息
+     * @param id 员工id
+     * @return 员工信息
+     */
+    @GetMapping("/{id}")
+    @ApiOperation("根据员工id查询员工信息") //swagger接口文档的说明
+    public Result<Employee> getByUserId(@PathVariable Long id) {
+        log.info("根据员工id查询员工信息：id={}", id);
+
+        //调用service层的getByUserId方法 会查询数据库
+        Employee employee = employeeService.getByUserId(id);
+
+        return Result.success(employee);
+    }
+
+    /**
+     * 更新员工
+     * @param employeeDTO 员工信息
+     * @return 更新成功
+     */
+    @PutMapping
+    public Result updateEmployee(@RequestBody EmployeeDTO employeeDTO) {
+        log.info("更新员工：{}", employeeDTO);
+
+        //调用service层的updateEmployee方法 会更新数据库
+        employeeService.updateEmployee(employeeDTO);
 
         return Result.success();
     }
