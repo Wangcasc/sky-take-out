@@ -9,6 +9,7 @@ import com.sky.context.BaseContext;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.dto.EmployeePageQueryDTO;
+import com.sky.dto.PasswordEditDTO;
 import com.sky.entity.Employee;
 import com.sky.exception.AccountLockedException;
 import com.sky.exception.AccountNotFoundException;
@@ -178,6 +179,31 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setUpdateUser(BaseContext.getCurrentId());
 
         //调用DAO层方法插入数据
+        employeeMapper.update(employee);
+    }
+
+    /**
+     * 修改密码
+     * @param passwordEditDTO 密码修改信息
+     */
+    @Override
+    public void changePassword(PasswordEditDTO passwordEditDTO) {
+        //1、根据当前登录id查询员工信息
+        Employee employee = employeeMapper.getByUserId(BaseContext.getCurrentId());
+        //2、判断旧密码是否正确
+        String oldPassword = DigestUtils.md5DigestAsHex(passwordEditDTO.getOldPassword().getBytes());
+        if (!oldPassword.equals(employee.getPassword())) {
+            //旧密码不正确
+            throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
+        }
+
+        //判断两次输入的新密码是否一致 已在前端校验
+        //3、修改密码
+        String newPassword = DigestUtils.md5DigestAsHex(passwordEditDTO.getNewPassword().getBytes());
+        employee.setPassword(newPassword);
+        employee.setUpdateTime(LocalDateTime.now());
+        employee.setUpdateUser(BaseContext.getCurrentId());
+        //调用DAO层方法更新数据
         employeeMapper.update(employee);
     }
 

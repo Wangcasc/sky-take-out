@@ -4,6 +4,7 @@ import com.sky.constant.JwtClaimsConstant;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.dto.EmployeePageQueryDTO;
+import com.sky.dto.PasswordEditDTO;
 import com.sky.entity.Employee;
 import com.sky.properties.JwtProperties;
 import com.sky.result.PageResult;
@@ -153,6 +154,7 @@ public class EmployeeController {
      * @return 更新成功
      */
     @PutMapping
+    @ApiOperation("更新员工") //swagger接口文档的说明
     public Result updateEmployee(@RequestBody EmployeeDTO employeeDTO) {
         log.info("更新员工：{}", employeeDTO);
 
@@ -160,6 +162,22 @@ public class EmployeeController {
         employeeService.updateEmployee(employeeDTO);
 
         return Result.success();
+    }
+
+    /**
+     * 修改密码
+     * @param passwordEditDTO 密码信息
+     * @return 修改成功
+     */
+    @PutMapping("/editPassword")
+    public Result changePassword(@RequestBody PasswordEditDTO passwordEditDTO) {
+        log.info("修改密码：{}", passwordEditDTO); //前端没有给传递员工id，所以需要从token中获得员工id 但这样只能修改自己的密码
+
+        //调用service层的changePassword方法 会更新数据库
+        employeeService.changePassword(passwordEditDTO);
+
+        return Result.success();
+
     }
 
 }
