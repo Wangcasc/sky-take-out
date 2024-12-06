@@ -92,13 +92,13 @@ public class EmployeeServiceImpl implements EmployeeService {
         BeanUtils.copyProperties(employeeDTO, employee); //将DTO对象的属性拷贝到实体对象中 前提是属性名相同
         employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes())); //默认密码123456 MD5加密
         employee.setStatus(StatusConstant.ENABLE); //默认启用
-        //添加额外操作信息
-        employee.setCreateTime(LocalDateTime.now()); //创建时间
-        employee.setUpdateTime(LocalDateTime.now()); //更新时间
-        //创建人 从ThreadLocal中获取
-        employee.setCreateUser(BaseContext.getCurrentId());
-        //更新人 从ThreadLocal中获取
-        employee.setUpdateUser(BaseContext.getCurrentId());
+        ////添加额外操作信息
+        //employee.setCreateTime(LocalDateTime.now()); //创建时间
+        //employee.setUpdateTime(LocalDateTime.now()); //更新时间
+        ////创建人 从ThreadLocal中获取
+        //employee.setCreateUser(BaseContext.getCurrentId());
+        ////更新人 从ThreadLocal中获取
+        //employee.setUpdateUser(BaseContext.getCurrentId());
 
         //调用DAO层方法插入数据
         employeeMapper.insert(employee);
@@ -173,10 +173,10 @@ public class EmployeeServiceImpl implements EmployeeService {
         //新建要记录的员工对象
         Employee employee = new Employee();
         BeanUtils.copyProperties(employeeDTO, employee); //将DTO对象的属性拷贝到实体对象中 前提是属性名相同
-        //添加额外操作信息
-        employee.setUpdateTime(LocalDateTime.now()); //更新时间
-        //更新人 从ThreadLocal中获取
-        employee.setUpdateUser(BaseContext.getCurrentId());
+        ////添加额外操作信息
+        //employee.setUpdateTime(LocalDateTime.now()); //更新时间
+        ////更新人 从ThreadLocal中获取
+        //employee.setUpdateUser(BaseContext.getCurrentId());
 
         //调用DAO层方法插入数据
         employeeMapper.update(employee);
@@ -201,8 +201,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         //3、修改密码
         String newPassword = DigestUtils.md5DigestAsHex(passwordEditDTO.getNewPassword().getBytes());
         employee.setPassword(newPassword);
-        employee.setUpdateTime(LocalDateTime.now());
-        employee.setUpdateUser(BaseContext.getCurrentId());
+        //employee.setUpdateTime(LocalDateTime.now());
+        //employee.setUpdateUser(BaseContext.getCurrentId());
         //调用DAO层方法更新数据
         employeeMapper.update(employee);
     }
