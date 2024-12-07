@@ -12,3 +12,6 @@ sky:
     access-key-secret: CaTs3ICbnCqaZpwt5gtptKRH33uRAp
     bucket-name: wxl-sky
     endpoint: oss-cn-guangzhou.aliyuncs.com
+
+
+# 加入了github忽略 防止泄露
