@@ -34,7 +34,7 @@ public class AutoFillAspect {
     public void before(JoinPoint joinPoint) { // 前置通知方法
         log.info("自动填充切面执行");
         // 获取当前拦截到的方法上的注解标识的数据库操作类型
-        MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature(); // 获取方法签名对象
+        MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature(); // 获取方法签名对象 获得的是抽象签名对象 强转后可以获取方法对象
         OperationType operationType = methodSignature.getMethod().getAnnotation(AutoFill.class).value(); // 获取方法上的AutoFill注解的value值
         // 获取当前拦截方法的参数 也就是实体对象
         Object[] args = joinPoint.getArgs(); // 获取方法参数

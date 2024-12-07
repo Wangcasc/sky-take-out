@@ -3,7 +3,7 @@ server:
 
 spring:
   profiles:
-    active: dev # 激活的配置文件
+    active: dev # 激活的配置文件 通过切换这个标志就可以随时跟换附属的配置文件
   main:
     allow-circular-references: true # 允许循环依赖
   datasource: # 数据源配置
@@ -37,3 +37,10 @@ sky:
     admin-ttl: 43200000 # 12小时
     # 设置前端传递过来的令牌名称
     admin-token-name: token
+
+
+  alioss:
+    access-key-id: ${sky.alioss.access-key-id}
+    access-key-secret: ${sky.alioss.access-key-secret}
+    bucket-name: ${sky.alioss.bucket-name}
+    endpoint: ${sky.alioss.endpoint}
