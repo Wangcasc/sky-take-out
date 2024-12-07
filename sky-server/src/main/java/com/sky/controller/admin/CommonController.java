@@ -23,7 +23,6 @@ public class CommonController {
     @Autowired
     //private AliOssUtil aliOssUtil; //使用@Autowired注解注入AliOssUtil类的对象
     private AliOssUtil ossUtil; //最好还是保持与配置类中的名称一致
-
     /**
      * @param file 文件
      * @return 返回url
@@ -42,7 +41,7 @@ public class CommonController {
             //上传文件
             String url = ossUtil.upload(file.getBytes(), fileName);
 
-            return Result.success(url);
+            return Result.success(url); //返回上传文件的url
         } catch (IOException e) {
             log.error("上传文件失败", e);
             throw new RuntimeException(e);
