@@ -59,8 +59,8 @@ public class DishServiceImpl implements DishService {
 
     /**
      * 分页查询菜品
-     * @param dishPageQueryDTO
-     * @return
+     * @param dishPageQueryDTO  分页查询条件
+     * @return 返回分页查询结果
      */
     @Override
     public PageResult pageDish(DishPageQueryDTO dishPageQueryDTO) {
@@ -73,6 +73,10 @@ public class DishServiceImpl implements DishService {
         return pageResult;
     }
 
+    /**
+     * 删除菜品 批量删除
+     * @param ids  菜品id
+     */
     @Override
     @Transactional //事务
     public void deleteBatch(List<Long> ids) {
