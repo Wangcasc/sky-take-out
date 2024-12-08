@@ -3,12 +3,42 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.sky.mapper.DishMapper">
 
-    <!--新增菜品-->
+    <!--新增菜品 需要用于口味表的id填写，所以需要获得sql插入后的主键id-->
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         insert into dish (name, category_id, price, image, description, status, create_time, update_time, create_user, update_user) VALUE
         (#{name}, #{categoryId}, #{price}, #{image}, #{description}, #{status}, #{createTime}, #{updateTime}, #{createUser}, #{updateUser})
 
     </insert>
+
+    <!--根据id修改菜品信息-->
+    <update id="update">
+        update dish set
+        <if test="name != null and name != ''">
+            name = #{name},
+        </if>
+        <if test="categoryId != null ">
+            category_id = #{categoryId},
+        </if>
+        <if test="price != null ">
+            price = #{price},
+        </if>
+        <if test="image != null and image != ''">
+            image = #{image},
+        </if>
+        <if test="description != null and description != ''">
+            description = #{description},
+        </if>
+        <if test="status != null ">
+            status = #{status},
+        </if>
+        <if test="updateTime != null ">
+            update_time = #{updateTime},
+        </if>
+        <if test="updateUser != null ">
+            update_user = #{updateUser}
+        </if>
+        where id = #{id}
+    </update>
 
     <!--批量删除菜品-->
     <delete id="deleteBatch">
@@ -25,10 +55,10 @@
             <if test="name != null and name != ''">
                 and d.name like concat('%',#{name},'%')
             </if>
-            <if test="categoryId != null and categoryId != ''">
+            <if test="categoryId != null ">
                 and d.category_id = #{categoryId}
             </if>
-            <if test="status != null and status != ''">
+            <if test="status != null ">
                 and d.status = #{status}
             </if>
         </where>

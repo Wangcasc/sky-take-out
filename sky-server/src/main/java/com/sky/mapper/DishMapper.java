@@ -30,13 +30,34 @@ public interface DishMapper {
     @AutoFill(value = OperationType.INSERT)
     void insert(Dish dish);
 
+    /**
+     * 分页查询菜品
+     * @param dishPageQueryDTO 分页查询条件
+     * @return 分页查询结果
+     */
     Page<Dish> pageDish(DishPageQueryDTO dishPageQueryDTO);
 
+    /**
+     * 根据id查询菜品
+     * @param id 菜品id
+     * @return 菜品信息
+     */
     @Select("select * from dish where id = #{id}")
     Dish getById(Long id);
 
     @Delete("delete from dish where id = #{id}")
     void deleteById(Long id);
 
+    /**
+     * 批量删除菜品
+     * @param ids 菜品批量id
+     */
     void deleteBatch(List<Long> ids);
+
+    /**
+     * 更新菜品信息
+     * @param dish 菜品信息
+     */
+    @AutoFill(value = OperationType.UPDATE)
+    void update(Dish dish);
 }

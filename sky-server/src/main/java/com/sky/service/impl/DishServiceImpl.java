@@ -13,6 +13,9 @@ import com.sky.mapper.DishMapper;
 import com.sky.mapper.SetmealDishMapper;
 import com.sky.result.PageResult;
 import com.sky.service.DishService;
+import com.sky.vo.DishVO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +27,7 @@ import java.util.Objects;
 @Service
 public class DishServiceImpl implements DishService {
 
+    private static final Logger log = LoggerFactory.getLogger(DishServiceImpl.class);
     @Autowired
     private DishMapper dishMapper;
 
@@ -105,6 +109,45 @@ public class DishServiceImpl implements DishService {
         // 批量删除菜品和对应的口味信息
         dishMapper.deleteBatch(ids);
         dishFlavorMapper.deleteByDishIds(ids);
+
+    }
+
+    @Override
+    public DishVO getDishByIdWithFlavor(Long id) {
+        //1、根据id查询菜品信息
+        Dish dish = dishMapper.getById(id);
+        //2、根据id查询菜品口味信息
+        List<DishFlavor> dishFlavorList = dishFlavorMapper.getByDishId(id);
+        //3、将菜品信息和菜品口味信息封装到VO对象中
+        DishVO dishVO = new DishVO();
+        BeanUtils.copyProperties(dish, dishVO);
+        dishVO.setFlavors(dishFlavorList);
+        return dishVO;
+    }
+
+
+    /**
+     * 更新菜品信息
+     * @param dishDTO 菜品信息 更新菜品信息
+     */
+    @Override
+    public void updateDish(DishDTO dishDTO) {
+        //1、将DTO转换为实体对象
+        Dish dish = new Dish();
+        BeanUtils.copyProperties(dishDTO, dish);
+        //2、更新菜品信息
+        dishMapper.update(dish);
+        //3、删除菜品口味信息
+        dishFlavorMapper.deleteByDishId(dish.getId());
+        //4、插入菜品口味信息
+        List<DishFlavor> dishFlavorList = dishDTO.getFlavors();
+        if (dishFlavorList != null && !dishFlavorList.isEmpty()) {
+            //为菜品口味信息设置菜品id
+            for (DishFlavor dishFlavor : dishFlavorList) {
+                dishFlavor.setDishId(dish.getId()); //设置菜品id
+            }
+            dishFlavorMapper.insertBatch(dishFlavorList); //批量插入菜品口味信息
+        }
 
     }
 }
