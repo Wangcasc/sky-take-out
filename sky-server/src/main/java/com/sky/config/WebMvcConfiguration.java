@@ -43,7 +43,7 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
     }
 
     /**
-     * 通过knife4j生成接口文档
+     * 通过knife4j生成接口文档 管理员接口
      * @return
      */
     @Bean
@@ -63,6 +63,10 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         return docket;
     }
 
+    /**
+     * 通过knife4j生成接口文档 用户接口
+     * @return Docket
+     */
     @Bean
     public Docket docket2() {
         log.info("开始生成接口文档...");
