@@ -31,9 +31,9 @@ public class ShopController {
     public Result getStatus() {
         log.info("获取店铺状态");
         //使用RedisTemplate操作redis来获取店铺状态
-        Object status = redisTemplate.opsForValue().get(SHOP_STATUS);
+        Object status = redisTemplate.opsForValue().get(SHOP_STATUS); //获取key的value
         //转为Integer类型
-        status = Integer.valueOf(status.toString());
+        status = Integer.valueOf(status.toString()); //将Object类型转为Integer类型
         log.info("status: {}", status);
 
         return Result.success(status);
