@@ -55,6 +55,7 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
                 .description("苍穹外卖项目接口文档")
                 .build();
         Docket docket = new Docket(DocumentationType.SWAGGER_2)
+                .groupName("管理员接口")
                 .apiInfo(apiInfo)
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.sky.controller.admin")) //扫描controller包下的接口 重要
@@ -76,6 +77,7 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
                 .description("苍穹外卖项目接口文档")
                 .build();
         Docket docket = new Docket(DocumentationType.SWAGGER_2)
+                .groupName("用户接口")
                 .apiInfo(apiInfo)
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.sky.controller.user")) //扫描controller包下的接口 重要
