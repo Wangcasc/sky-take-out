@@ -5,6 +5,7 @@ import com.sky.annotation.AutoFill;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.enumeration.OperationType;
+import com.sky.vo.DishVO;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -35,7 +36,7 @@ public interface DishMapper {
      * @param dishPageQueryDTO 分页查询条件
      * @return 分页查询结果
      */
-    Page<Dish> pageDish(DishPageQueryDTO dishPageQueryDTO);
+    Page<DishVO> pageDish(DishPageQueryDTO dishPageQueryDTO);
 
     /**
      * 根据id查询菜品
