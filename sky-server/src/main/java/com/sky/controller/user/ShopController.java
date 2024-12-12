@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController("userShopController") //取一个别名 避免和admin的ShopController冲突
-@RequestMapping("/user/shop")
+@RequestMapping("/user/shop") //用户端就是user开头 项目约定
 @Api(tags = "店铺相关接口")
 @Slf4j
 public class ShopController {
