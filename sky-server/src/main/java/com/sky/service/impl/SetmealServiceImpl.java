@@ -103,14 +103,22 @@ public class SetmealServiceImpl implements SetmealService {
 
 
     /**
-     * 根据id查询套餐和套餐菜品关系
+     * 根据id查询套餐和套餐菜品关系 用于回显
      *
      * @param id
      * @return
      */
+    @Transactional // 保证数据库操作的原子性 保证只有一个事务提交，即保证修改的数据库数据和删除的数据库数据是同一批的
     public SetmealVO getByIdWithDish(Long id) {
         Setmeal setmeal = setmealMapper.getById(id);
         List<SetmealDish> setmealDishes = setmealDishMapper.getBySetmealId(id);
+        //这里查询到之前保存的套餐信息 价格、名称等是旧的 现在要根据菜品id查到最新的菜品信息
+        for (SetmealDish setmealDish : setmealDishes) {
+            Long dishId = setmealDish.getDishId();
+            Dish dish = dishMapper.getById(dishId); //最新的菜品信息
+            setmealDish.setName(dish.getName()); // 更新名称和价格
+            setmealDish.setPrice(dish.getPrice());
+        }
 
         SetmealVO setmealVO = new SetmealVO();
         BeanUtils.copyProperties(setmeal, setmealVO);
