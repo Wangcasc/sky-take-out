@@ -45,7 +45,7 @@ public class AutoFillAspect {
         Object entity = args[0];
 
         // 为实体对象的公共字段赋值
-        // 1、获取当前登录用户的id
+        // 1、从ThreadLocal获取当前登录用户的id
         Long currentUserId = BaseContext.getCurrentId();
         // 2、判断是新增还是修改
         if (operationType == OperationType.INSERT) { // 新增
