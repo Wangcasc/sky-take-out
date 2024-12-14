@@ -39,6 +39,7 @@ public class DishController {
     public Result addDish(@RequestBody DishDTO dishDTO) {
         log.info("新增菜品：{}", dishDTO);
         dishService.addDishWithFlavor(dishDTO); //调用新增菜品的方法
+        cleanRedisCache("user_dish_list_"+dishDTO.getCategoryId());
         return Result.success();
     }
 
@@ -60,6 +61,7 @@ public class DishController {
     public Result deleteDish(@RequestParam List<Long> ids) {
         log.info("删除菜品：{}", ids);
         dishService.deleteBatch(ids);
+        cleanRedisCache("user_dish_list_*");
         return Result.success();
     }
 
@@ -97,6 +99,7 @@ public class DishController {
     public Result dishStatus(@PathVariable("status") Integer status ,Long id) {
         log.info("修改菜品状态：{} -> {}", id, status);
         dishService.setDishStatus(id, status);
+        cleanRedisCache("user_dish_list_*"); //清除redis中user_dish_list_* 相关的缓存
         return Result.success();
     }
 
