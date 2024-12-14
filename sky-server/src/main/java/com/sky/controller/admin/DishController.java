@@ -12,6 +12,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,9 @@ public class DishController {
 
     @Autowired
     private DishService dishService;
+
+    @Autowired
+    private RedisTemplate redisTemplate; //注入redisTemplate 用于保持缓存和后端的数据同步
 
     /**
      * 新增菜品
@@ -72,6 +76,7 @@ public class DishController {
     public Result updateDish(@RequestBody DishDTO dishDTO) {
         log.info("更新菜品：{}", dishDTO);
         dishService.updateDish(dishDTO);
+        cleanRedisCache("user_dish_list_*"); //清除redis中user_dish_list_* 相关的缓存
         return Result.success();
     }
 
@@ -85,6 +90,19 @@ public class DishController {
     public Result<List<Dish>> list(Long categoryId){
         List<Dish> list = dishService.list(categoryId);
         return Result.success(list);
+    }
+
+    @PutMapping("/status/{status}")
+    @ApiOperation("修改菜品状态")
+    public Result dishStatus(Long dishId, @PathVariable Integer status) {
+        dishService.setDishStatus(dishId, status);
+        return Result.success();
+    }
+
+
+    private void cleanRedisCache(String pattern) {
+        redisTemplate.delete(redisTemplate.keys(pattern));
+        log.info("清除redis缓存：{}", pattern);
     }
 
 }

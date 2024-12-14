@@ -165,6 +165,14 @@ public class DishServiceImpl implements DishService {
         return dishMapper.list(dish);
     }
 
+    @Override
+    public void setDishStatus(Long dishId, Integer status) {
+        Dish dish = new Dish();
+        dish.setId(dishId);
+        dish.setStatus(status);
+        dishMapper.update(dish);
+    }
+
     /**
      * 条件查询菜品和口味
      * @param dish

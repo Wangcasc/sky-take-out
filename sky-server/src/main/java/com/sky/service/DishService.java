@@ -56,4 +56,5 @@ public interface DishService {
      */
     List<Dish> list(Long categoryId);
 
+    void setDishStatus(Long dishId, Integer status);
 }
