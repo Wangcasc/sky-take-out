@@ -18,4 +18,10 @@ public interface ShoppingCartService {
      * @return  购物车单元
      */
     List<ShoppingCart> list();
+
+    /**
+     * 删掉菜品
+     * @param shoppingCartDTO  shoppingCart
+     */
+    void sub(ShoppingCartDTO shoppingCartDTO);
 }

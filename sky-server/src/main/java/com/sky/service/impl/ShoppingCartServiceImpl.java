@@ -41,9 +41,9 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
         List<ShoppingCart> shoppingCartList = shoppingCartMapper.list(shoppingCart);
         if (shoppingCartList!=null && !shoppingCartList.isEmpty()){
-            ShoppingCart cart = shoppingCartList.get(0); //严格查询只会有一个结果 因为一个人名下重复的会被过滤掉只在数量上加1
-            cart.setNumber(cart.getNumber() + 1);
-            shoppingCartMapper.update(cart);
+            shoppingCart = shoppingCartList.get(0); //严格查询只会有一个结果 因为一个人名下重复的会被过滤掉只在数量上加1
+            shoppingCart.setNumber(shoppingCart.getNumber() + 1);
+            shoppingCartMapper.update(shoppingCart);
         }
         else {
             // 如果不存在，查询缺失信息后插入
@@ -81,9 +81,37 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     public List<ShoppingCart> list() {
 
         Long userId = BaseContext.getCurrentId();
-        ShoppingCart cart = new ShoppingCart();
-        cart.setUserId(userId);
-        List<ShoppingCart> shoppingCartList = shoppingCartMapper.list(cart);
+        ShoppingCart shoppingCart = new ShoppingCart();
+        shoppingCart.setUserId(userId);
+        List<ShoppingCart> shoppingCartList = shoppingCartMapper.list(shoppingCart);
         return shoppingCartList;
+    }
+
+    @Override
+    public void sub(ShoppingCartDTO shoppingCartDTO) {
+        ShoppingCart shoppingCart = new ShoppingCart();
+        BeanUtils.copyProperties(shoppingCartDTO, shoppingCart);
+
+        //UserId
+        Long userId = BaseContext.getCurrentId();
+        shoppingCart.setUserId(userId);
+
+        //查询
+        List<ShoppingCart> list = shoppingCartMapper.list(shoppingCart);
+
+        if(list != null && !list.isEmpty()){
+            shoppingCart = list.get(0); //严格查询，只会有一条
+
+            Integer number = shoppingCart.getNumber();
+            if(number == 1){
+                //当前商品在购物车中的份数为1，直接删除当前记录
+                shoppingCartMapper.delete(shoppingCart);
+            }else {
+                //当前商品在购物车中的份数不为1，修改份数即可
+                shoppingCart.setNumber(shoppingCart.getNumber() - 1);
+                //shoppingCart.setCreateTime(LocalDateTime.now());
+                shoppingCartMapper.update(shoppingCart);
+            }
+        }
     }
 }

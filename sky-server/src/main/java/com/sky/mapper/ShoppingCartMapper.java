@@ -32,4 +32,10 @@ public interface ShoppingCartMapper {
             "VALUES (#{name}, #{image}, #{userId}, #{dishId}, #{setmealId}, #{dishFlavor}, #{number}, #{amount}, #{createTime})")
     void insert(ShoppingCart shoppingCart);
 
+
+    /**
+     * 删除特定数据
+     * @param shoppingCart  the shopping cart
+     */
+    void delete(ShoppingCart shoppingCart);
 }
