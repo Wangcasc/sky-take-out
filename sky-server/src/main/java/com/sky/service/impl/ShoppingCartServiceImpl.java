@@ -114,4 +114,18 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             }
         }
     }
+
+    /**
+     * 清空购物车
+     */
+    @Override
+    public void clean() {
+        ShoppingCart shoppingCart = new ShoppingCart();
+        //只需要根据userId删除就可以
+        Long userId=BaseContext.getCurrentId();
+        shoppingCart.setUserId(userId);
+
+        shoppingCartMapper.delete(shoppingCart);
+
+    }
 }
