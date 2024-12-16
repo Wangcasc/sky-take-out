@@ -30,8 +30,8 @@ public class OrderController {
     /**
      * 订单搜索
      *
-     * @param ordersPageQueryDTO
-     * @return
+     * @param ordersPageQueryDTO the order page query
+     * @return the order pageResult
      */
     @GetMapping("/conditionSearch")
     @ApiOperation("订单搜索")
@@ -56,8 +56,8 @@ public class OrderController {
     /**
      * 订单详情
      *
-     * @param id
-     * @return
+     * @param id 订单id
+     * @return success orderVO
      */
     @GetMapping("/details/{id}")
     @ApiOperation("查询订单详情")
@@ -69,7 +69,7 @@ public class OrderController {
     /**
      * 接单
      *
-     * @return
+     * @return success
      */
     @PutMapping("/confirm")
     @ApiOperation("接单")
@@ -82,7 +82,7 @@ public class OrderController {
     /**
      * 拒单
      *
-     * @return
+     * @return success
      */
     @PutMapping("/rejection")
     @ApiOperation("拒单")
@@ -94,7 +94,7 @@ public class OrderController {
     /**
      * 取消订单
      *
-     * @return
+     * @return success
      */
     @PutMapping("/cancel")
     @ApiOperation("取消订单")
@@ -107,7 +107,7 @@ public class OrderController {
     /**
      * 派送订单
      *
-     * @return
+     * @return success
      */
     @PutMapping("/delivery/{id}")
     @ApiOperation("派送订单")
@@ -119,7 +119,7 @@ public class OrderController {
     /**
      * 完成订单
      *
-     * @return
+     * @return success
      */
     @PutMapping("/complete/{id}")
     @ApiOperation("完成订单")
