@@ -127,4 +127,6 @@ public class OrderController {
         orderService.complete(id);
         return Result.success();
     }
+
+    //TODO : 校验收货地址是否超出配送范围
 }
