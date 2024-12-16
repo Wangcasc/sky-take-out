@@ -177,7 +177,7 @@ public class OrderServiceImpl implements OrderService {
         ordersPageQueryDTO.setUserId(BaseContext.getCurrentId());
         ordersPageQueryDTO.setStatus(status);
 
-        // 分页条件查询
+        // 分页条件查询 根据用户id和状态
         Page<Orders> page = orderMapper.pageQuery(ordersPageQueryDTO);
 
         List<OrderVO> list = new ArrayList();
@@ -188,7 +188,7 @@ public class OrderServiceImpl implements OrderService {
                 Long orderId = orders.getId();// 订单id
 
                 // 查询订单明细
-                List<OrderDetail> orderDetails = orderDetailMapper.getByOrderId(orderId);
+                List<OrderDetail> orderDetails = orderDetailMapper.getByOrderId(orderId); //不知道这里查明细有什么意义，后面明细还要单独查一遍
 
                 OrderVO orderVO = new OrderVO();
                 BeanUtils.copyProperties(orders, orderVO);
