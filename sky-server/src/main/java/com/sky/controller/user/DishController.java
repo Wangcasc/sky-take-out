@@ -35,6 +35,7 @@ public class DishController {
     @GetMapping("/list")
     @ApiOperation("根据分类id查询菜品")
     public Result<List<DishVO>> list(Long categoryId) {
+        log.info("根据分类id查询菜品");
         //查询redis中是否有数据
         String redisKey = "user_dish_list_" + categoryId;
         List<DishVO> dishVOList = (List<DishVO>) redisTemplate.opsForValue().get(redisKey);
