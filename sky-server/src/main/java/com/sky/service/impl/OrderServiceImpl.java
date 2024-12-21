@@ -1,5 +1,7 @@
 package com.sky.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -14,13 +16,17 @@ import com.sky.mapper.*;
 import com.sky.result.PageResult;
 import com.sky.service.OrderService;
 import com.sky.service.ShoppingCartService;
+import com.sky.utils.HttpClientUtil;
 import com.sky.utils.WeChatPayUtil;
 import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -28,12 +34,15 @@ import org.springframework.util.CollectionUtils;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements OrderService {
 
+    private static final Logger log = LoggerFactory.getLogger(OrderServiceImpl.class);
     @Autowired
     private OrderMapper orderMapper;
 
@@ -50,10 +59,18 @@ public class OrderServiceImpl implements OrderService {
     private UserMapper userMapper;
 
     @Autowired
-    private WeChatPayUtil weChatPayUtil;
+    private WeChatPayUtil weChatPayUtil; //微信支付工具类 由于没有商户 无法测试
+
+    @Value("${sky.shop.address}")
+    private String shopAddress;
+
+    @Value("${sky.baidu.ak}")
+    private String ak;
+
+
 
     @Override
-    @Transactional
+    @Transactional //开启事务
     public OrderSubmitVO submit(OrdersSubmitDTO ordersSubmitDTO) {
 
         // 处理业务异常
@@ -62,6 +79,10 @@ public class OrderServiceImpl implements OrderService {
         if (addressBook == null) {
             throw new AddressBookBusinessException(MessageConstant.ADDRESS_BOOK_IS_NULL);
         }
+
+        //校验配送范围
+        checkOutOfRange(addressBook.getCityName()+addressBook.getDistrictName()+addressBook.getDetail());
+
         //当前用户购物车是空的
         Long userId= BaseContext.getCurrentId();
         ShoppingCart shoppingCart =new ShoppingCart();
@@ -99,26 +120,25 @@ public class OrderServiceImpl implements OrderService {
         shoppingCartMapper.delete(shoppingCart); //前面的shoppingCart只赋值了userId
 
         // 4. 封装VO
-        OrderSubmitVO orderSubmitVO = OrderSubmitVO.builder()
+
+        return OrderSubmitVO.builder()
                 .id(orders.getId())
                 .orderTime(orders.getOrderTime())
                 .orderNumber(orders.getNumber())
                 .orderAmount(orders.getAmount())
                 .build();
-
-        return orderSubmitVO;
     }
 
     /**
      * 订单支付
      *
-     * @param ordersPaymentDTO
-     * @return
+     * @param ordersPaymentDTO 订单支付DTO
+     * @return OrderPaymentVO 订单支付VO
      */
     public OrderPaymentVO payment(OrdersPaymentDTO ordersPaymentDTO) throws Exception {
-        // 当前登录用户id
-        Long userId = BaseContext.getCurrentId();
-        User user = userMapper.getById(userId);
+        // 当前登录用户id 由于没有商户 无法测试
+        //Long userId = BaseContext.getCurrentId();
+        //User user = userMapper.getById(userId);
 
         //调用微信支付接口，生成预支付交易单
         //JSONObject jsonObject = weChatPayUtil.pay(
@@ -143,7 +163,7 @@ public class OrderServiceImpl implements OrderService {
     /**
      * 支付成功，修改订单状态
      *
-     * @param outTradeNo
+     * @param outTradeNo 商户订单号
      */
     public void paySuccess(String outTradeNo) {
 
@@ -165,10 +185,10 @@ public class OrderServiceImpl implements OrderService {
     /**
      * 用户端订单分页查询
      *
-     * @param pageNum
-     * @param pageSize
-     * @param status
-     * @return
+     * @param pageNum 页码
+     * @param pageSize 每页显示数量
+     * @param status   订单状态 1待付款 2待接单 3已接单 4派送中 5已完成 6已取消
+     * @return PageResult 订单分页结果
      */
     public PageResult pageQuery4User(int pageNum, int pageSize, Integer status) {
         // 设置分页
@@ -181,7 +201,7 @@ public class OrderServiceImpl implements OrderService {
         // 分页条件查询 根据用户id和状态
         Page<Orders> page = orderMapper.pageQuery(ordersPageQueryDTO);
 
-        List<OrderVO> list = new ArrayList();
+        List<OrderVO> list = new ArrayList<>();
 
         // 查询出订单明细，并封装入OrderVO进行响应
         if (page != null && page.getTotal() > 0) {
@@ -204,8 +224,8 @@ public class OrderServiceImpl implements OrderService {
     /**
      * 查询订单详情
      *
-     * @param id
-     * @return
+     * @param id 订单id
+     * @return OrderVO
      */
     public OrderVO details(Long id) {
         // 根据id查询订单
@@ -225,7 +245,7 @@ public class OrderServiceImpl implements OrderService {
     /**
      * 用户取消订单
      *
-     * @param id
+     * @param id 订单id
      */
     public void userCancelById(Long id) throws Exception {
         // 根据id查询订单
@@ -265,9 +285,9 @@ public class OrderServiceImpl implements OrderService {
     }
 
     /**
-     * 再来一单
+     * 再来一单 再来一单的逻辑是将订单详情中的菜品信息重新添加到购物车中
      *
-     * @param id
+     * @param id 订单id
      */
     public void repetition(Long id) {
         // 查询当前用户id
@@ -295,8 +315,8 @@ public class OrderServiceImpl implements OrderService {
     /**
      * 订单搜索
      *
-     * @param ordersPageQueryDTO
-     * @return
+     * @param ordersPageQueryDTO 订单分页查询条件
+     * @return PageResult 订单分页结果
      */
     public PageResult conditionSearch(OrdersPageQueryDTO ordersPageQueryDTO) {
         PageHelper.startPage(ordersPageQueryDTO.getPage(), ordersPageQueryDTO.getPageSize());
@@ -333,8 +353,8 @@ public class OrderServiceImpl implements OrderService {
     /**
      * 根据订单id获取菜品信息字符串
      *
-     * @param orders
-     * @return
+     * @param orders 订单对象
+     * @return 菜品信息字符串
      */
     private String getOrderDishesStr(Orders orders) {
         // 查询订单菜品详情信息（订单中的菜品和数量）
@@ -342,8 +362,7 @@ public class OrderServiceImpl implements OrderService {
 
         // 将每一条订单菜品信息拼接为字符串（格式：宫保鸡丁*3；）
         List<String> orderDishList = orderDetailList.stream().map(x -> {
-            String orderDish = x.getName() + "*" + x.getNumber() + ";";
-            return orderDish;
+            return x.getName() + "*" + x.getNumber() + ";";
         }).collect(Collectors.toList());
 
         // 将该订单对应的所有菜品信息拼接在一起
@@ -354,7 +373,7 @@ public class OrderServiceImpl implements OrderService {
     /**
      * 各个状态的订单数量统计
      *
-     * @return
+     * @return OrderStatisticsVO
      */
     public OrderStatisticsVO statistics() {
         // 根据状态，分别查询出待接单、待派送、派送中的订单数量
@@ -373,7 +392,7 @@ public class OrderServiceImpl implements OrderService {
     /**
      * 接单
      *
-     * @param ordersConfirmDTO
+     * @param ordersConfirmDTO 订单确认DTO
      */
     public void confirm(OrdersConfirmDTO ordersConfirmDTO) {
         Orders orders = Orders.builder()
@@ -387,7 +406,7 @@ public class OrderServiceImpl implements OrderService {
     /**
      * 拒单
      *
-     * @param ordersRejectionDTO
+     * @param ordersRejectionDTO 订单拒单DTO
      */
     public void rejection(OrdersRejectionDTO ordersRejectionDTO) {
         // 根据id查询订单
@@ -423,13 +442,14 @@ public class OrderServiceImpl implements OrderService {
     /**
      * 取消订单
      *
-     * @param ordersCancelDTO
+     * @param ordersCancelDTO 订单取消DTO
      */
     public void cancel(OrdersCancelDTO ordersCancelDTO)  {
         // 根据id查询订单
         Orders ordersDB = orderMapper.getById(ordersCancelDTO.getId());
 
-        ////支付状态
+
+        ////支付状态 必须是已支付才能退款
         //Integer payStatus = ordersDB.getPayStatus();
         //if (payStatus == 1) {
         //    //用户已支付，需要退款
@@ -453,7 +473,7 @@ public class OrderServiceImpl implements OrderService {
     /**
      * 派送订单
      *
-     * @param id
+     * @param id 订单id
      */
     public void delivery(Long id) {
         // 根据id查询订单
@@ -475,7 +495,7 @@ public class OrderServiceImpl implements OrderService {
     /**
      * 完成订单
      *
-     * @param id
+     * @param id 订单id
      */
     public void complete(Long id) {
         // 根据id查询订单
@@ -494,5 +514,72 @@ public class OrderServiceImpl implements OrderService {
 
         orderMapper.update(orders);
     }
+
+    /**
+     * @param address  用户收货地址
+     */
+    public void checkOutOfRange(String address){
+        Map<String,String> map=new HashMap<>();
+        map.put("address",shopAddress);
+        map.put("output","json");
+        map.put("ak",ak);
+
+        //调用百度地图api 获取经纬度坐标
+        String shopCoordinate= HttpClientUtil.doGet("http://api.map.baidu.com/geocoding/v3/",map); //调用百度地图api
+        //log.info("获取商家坐标：{}",shopCoordinate);
+        JSONObject jsonObject = JSONObject.parseObject(shopCoordinate); //转换为json对象
+        if (!jsonObject.getString("status") .equals("0")) {
+            throw new OrderBusinessException("获取商家坐标失败");
+        }
+
+        //数据解析 获取商家经纬度坐标
+        JSONObject location = jsonObject.getJSONObject("result").getJSONObject("location");
+        String lat = location.getString("lat");
+        String lng = location.getString("lng");
+        //店铺经纬度坐标
+        String shopLngLat = lat + "," + lng;
+
+        map.put("address",address); //用户收货地址
+        //获取用户收货地址的经纬度坐标
+        String userCoordinate = HttpClientUtil.doGet("https://api.map.baidu.com/geocoding/v3", map);
+
+        jsonObject = JSON.parseObject(userCoordinate); //转换为json对象
+        if(!jsonObject.getString("status").equals("0")){
+            throw new OrderBusinessException("收货地址解析失败");
+        }
+
+        //数据解析 获取用户收货地址经纬度坐标
+        location = jsonObject.getJSONObject("result").getJSONObject("location");
+        lat = location.getString("lat");
+        lng = location.getString("lng");
+        //用户收货地址经纬度坐标
+        String userLngLat = lat + "," + lng;
+
+        map.put("origin",shopLngLat); //起点
+        map.put("destination",userLngLat); //终点
+        map.put("steps_info","0");
+
+        //路线规划
+        String json = HttpClientUtil.doGet("https://api.map.baidu.com/directionlite/v1/driving", map);
+
+        jsonObject = JSON.parseObject(json);
+        if(!jsonObject.getString("status").equals("0")){
+            throw new OrderBusinessException("配送路线规划失败");
+        }
+
+        //数据解析
+        JSONObject result = jsonObject.getJSONObject("result");
+        JSONArray jsonArray = (JSONArray) result.get("routes"); //调用alibaba的fastjson
+        Integer distance = (Integer) ((JSONObject) jsonArray.get(0)).get("distance");
+
+        if(distance > 5000){
+            //配送距离超过5000米
+            throw new OrderBusinessException("超出配送范围");
+        }
+
+
+
+    }
+
 
 }
