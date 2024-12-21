@@ -32,7 +32,7 @@ public class PayNotifyController {
     /**
      * 支付成功回调
      *
-     * @param request
+     * @param request 请求
      */
     @RequestMapping("/paySuccess")
     public void paySuccessNotify(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -61,9 +61,9 @@ public class PayNotifyController {
     /**
      * 读取数据
      *
-     * @param request
-     * @return
-     * @throws Exception
+     * @param request 请求
+     * @return 数据
+     * @throws Exception 异常
      */
     private String readData(HttpServletRequest request) throws Exception {
         BufferedReader reader = request.getReader();
@@ -81,9 +81,9 @@ public class PayNotifyController {
     /**
      * 数据解密
      *
-     * @param body
-     * @return
-     * @throws Exception
+     * @param body 数据
+     * @return 解密后的数据
+     * @throws Exception 异常
      */
     private String decryptData(String body) throws Exception {
         JSONObject resultObject = JSON.parseObject(body);
@@ -103,7 +103,7 @@ public class PayNotifyController {
 
     /**
      * 给微信响应
-     * @param response
+     * @param response 响应
      */
     private void responseToWeixin(HttpServletResponse response) throws Exception{
         response.setStatus(200);
