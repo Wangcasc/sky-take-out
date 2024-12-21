@@ -22,6 +22,7 @@ import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
+import com.sky.websocket.WebSocketServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -66,6 +67,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Value("${sky.baidu.ak}")
     private String ak;
+
+    @Autowired
+    private WebSocketServer webSocketServer; //websocket服务
 
 
 
@@ -179,6 +183,15 @@ public class OrderServiceImpl implements OrderService {
                 .build();
 
         orderMapper.update(orders);
+
+        //websocket通知商家
+        Map<String,Object> map=new HashMap<>();
+        map.put("type",1); //1表示新订单
+        map.put("orderId",ordersDB.getId());
+        map.put("content","您有新订单，请及时处理,订单号："+outTradeNo); //与前端约定的消息格式
+
+        String jsonString = JSON.toJSONString(map); //转换为json字符串
+        webSocketServer.sendToAllClient(jsonString); //发送给所有客户端
     }
 
 
