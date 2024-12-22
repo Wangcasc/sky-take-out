@@ -531,6 +531,30 @@ public class OrderServiceImpl implements OrderService {
     }
 
     /**
+     * 催单
+     * @param id the order id
+     */
+    @Override
+    public void reminder(Long id) {
+        // 根据id查询订单
+        Orders ordersDB = orderMapper.getById(id);
+        //是否存在，并且状态为4
+        if (ordersDB == null || !ordersDB.getStatus().equals(Orders.TO_BE_CONFIRMED)) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        //websocket通知商家
+        Map<String,Object> map=new HashMap<>();
+        map.put("type",2); //2表示催单
+        map.put("orderId",ordersDB.getId());
+        map.put("content","用户催单，请及时处理,订单号："+ordersDB.getNumber()); //与前端约定的消息格式
+
+        String jsonString = JSON.toJSONString(map); //转换为json字符串
+        webSocketServer.sendToAllClient(jsonString); //发送给所有客户端
+
+    }
+
+    /**
      * @param address  用户收货地址
      */
     public void checkOutOfRange(String address){
