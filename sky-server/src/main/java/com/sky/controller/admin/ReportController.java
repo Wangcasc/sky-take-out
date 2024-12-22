@@ -24,7 +24,7 @@ public class ReportController {
     private ReportService reportService;
 
     /**
-     * 营业额报表
+     * 营业额报表 通过开始日期和结束日期查询营业额数据
      * @param begin 开始日期
      * @param end  结束日期
      * @return Result<TurnoverReportVO>
