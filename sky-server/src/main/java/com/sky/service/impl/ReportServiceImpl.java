@@ -1,10 +1,12 @@
 package com.sky.service.impl;
 
+import com.sky.dto.GoodsSalesDTO;
 import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
 import com.sky.vo.OrderReportVO;
+import com.sky.vo.SalesTop10ReportVO;
 import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -190,6 +193,7 @@ public class ReportServiceImpl implements ReportService {
         return orderReportVO;
     }
 
+
     private Integer getCount(Integer status, LocalDateTime startDateTime, LocalDateTime endDateTime) {
         Map<String,Object> map = new HashMap<>();
         map.put("status", status); // 已完成 有效订单
@@ -200,5 +204,34 @@ public class ReportServiceImpl implements ReportService {
             orderCount = 0;
         }
         return orderCount;
+    }
+
+
+    /**
+     * 获取订单报表
+     * @param begin 开始日期
+     * @param end   结束日期
+     * @return 订单报表
+     */
+    @Override
+    public SalesTop10ReportVO getSalesTop10Report(LocalDate begin, LocalDate end) {
+        //要查询订单详情表查每次订单的分数 还要查订单表查订单的状态
+        //select name,sum(od.number) from order_detail od,orders o where od.order_id = o.id and o.status = 5
+        // and o.order_time < ？ and o.order_time >= ？ group by name order by sum(od.number) desc limit 10
+        //查询出来的结果需要实体专门封装
+        List<GoodsSalesDTO> goodsSales = orderMapper.getGoodsSales(LocalDateTime.of(begin, LocalTime.MIN)
+                                                                    , LocalDateTime.of(end, LocalTime.MAX));
+        List<String> names = goodsSales.stream().map(GoodsSalesDTO::getName).collect(Collectors.toList());
+        String nameList = StringUtils.join(names, ",");// 商品名称以逗号分隔 例如：商品1,商品2,商品3
+        log.info("nameList:{}", goodsSales);
+        List<Integer> numbers = goodsSales.stream().map(GoodsSalesDTO::getNumber).collect(Collectors.toList());
+        String numberList = StringUtils.join(numbers, ",");// 商品销量以逗号分隔 例如：10,20,30
+        //log.info("numberList:{}", numberList);
+
+        SalesTop10ReportVO salesTop10ReportVO = new SalesTop10ReportVO();
+        salesTop10ReportVO.setNameList(nameList);
+        salesTop10ReportVO.setNumberList(numberList);
+
+        return salesTop10ReportVO;
     }
 }
