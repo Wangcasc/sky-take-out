@@ -103,6 +103,8 @@ public class OrderServiceImpl implements OrderService {
         orders.setOrderTime(LocalDateTime.now());
         orders.setStatus(Orders.PENDING_PAYMENT);
         orders.setPayStatus(Orders.UN_PAID);
+
+        //使用当前系统时间戳为订单号 这个订单号是唯一的 可以用于后面的支付
         orders.setNumber(String.valueOf(System.currentTimeMillis())); //使用当前系统时间戳为订单号
         orders.setPhone(addressBook.getPhone()); //电话
         orders.setConsignee(addressBook.getConsignee()); //收货人

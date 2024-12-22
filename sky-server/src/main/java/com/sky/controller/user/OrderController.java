@@ -43,6 +43,7 @@ public class OrderController {
     @PutMapping("/payment")
     @ApiOperation("订单支付")
     public Result<OrderPaymentVO> payment(@RequestBody OrdersPaymentDTO ordersPaymentDTO) throws Exception {
+        // OrdersPaymentDTO 包括订单号和支付方式 订单号唯一 用于支付时候交给微信支付
         log.info("订单支付：{}", ordersPaymentDTO);
         OrderPaymentVO orderPaymentVO = orderService.payment(ordersPaymentDTO);
         log.info("生成预支付交易单：{}", orderPaymentVO);

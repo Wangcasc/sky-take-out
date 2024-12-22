@@ -1,5 +1,7 @@
 package com.sky.websocket;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
@@ -18,6 +20,7 @@ import java.util.Map;
 @ServerEndpoint("/ws/{sid}") //sid为客户端的唯一标识
 public class WebSocketServer {
 
+    private static final Logger log = LoggerFactory.getLogger(WebSocketServer.class);
     //存放会话对象
     private static Map<String, Session> sessionMap = new HashMap();
 
@@ -26,7 +29,7 @@ public class WebSocketServer {
      */
     @OnOpen
     public void onOpen(Session session, @PathParam("sid") String sid) {
-        System.out.println("客户端：" + sid + "建立连接");
+        System.out.println("WebSocket客户端：" + sid + "建立连接");
         sessionMap.put(sid, session);
     }
 
@@ -37,7 +40,7 @@ public class WebSocketServer {
      */
     @OnMessage
     public void onMessage(String message, @PathParam("sid") String sid) {
-        System.out.println("收到来自客户端：" + sid + "的信息:" + message);
+        System.out.println("WebSocket收到来自客户端：" + sid + "的信息:" + message);
     }
 
     /**
@@ -47,7 +50,7 @@ public class WebSocketServer {
      */
     @OnClose
     public void onClose(@PathParam("sid") String sid) {
-        System.out.println("连接断开:" + sid);
+        System.out.println("WebSocket连接断开:" + sid);
         sessionMap.remove(sid);
     }
 
@@ -60,6 +63,7 @@ public class WebSocketServer {
         Collection<Session> sessions = sessionMap.values();
         for (Session session : sessions) {
             try {
+                log.info("WebSocket服务器向客户端发送消息：" + message);
                 //服务器向客户端发送消息
                 session.getBasicRemote().sendText(message);
             } catch (Exception e) {
