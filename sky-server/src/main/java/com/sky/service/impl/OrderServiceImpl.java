@@ -375,7 +375,7 @@ public class OrderServiceImpl implements OrderService {
         // 查询订单菜品详情信息（订单中的菜品和数量）
         List<OrderDetail> orderDetailList = orderDetailMapper.getByOrderId(orders.getId());
 
-        // 将每一条订单菜品信息拼接为字符串（格式：宫保鸡丁*3；）
+        // 将每一个订单菜品信息拼接为字符串（格式：宫保鸡丁*3；）
         List<String> orderDishList = orderDetailList.stream().map(x -> {
             return x.getName() + "*" + x.getNumber() + ";";
         }).collect(Collectors.toList());
