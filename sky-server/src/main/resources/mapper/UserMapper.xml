@@ -9,4 +9,16 @@
         (#{openid},#{name},#{phone},#{sex},#{idNumber},#{avatar},#{createTime})
     </insert>
 
+    <select id="countByMap" resultType="java.lang.Integer">
+        select count(id) from user
+        <where>
+            <if test="endDateTime != null">
+                and create_time &lt;= #{endDateTime}
+            </if>
+            <if test="startDateTime != null">
+                and create_time &gt;= #{startDateTime}
+            </if>
+        </where>
+    </select>
+
 </mapper>

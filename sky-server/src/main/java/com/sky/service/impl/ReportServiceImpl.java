@@ -2,8 +2,10 @@ package com.sky.service.impl;
 
 import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
+import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
 import com.sky.vo.TurnoverReportVO;
+import com.sky.vo.UserReportVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,9 @@ public class ReportServiceImpl implements ReportService {
     @Autowired
     private OrderMapper orderMapper;
 
+    @Autowired
+    private UserMapper userMapper;
+
     /**
      * 获取营业额报表
      * @param startDate 开始日期
@@ -40,7 +45,7 @@ public class ReportServiceImpl implements ReportService {
             tempDate = tempDate.plusDays(1);
             dateList.add(tempDate);
         }
-        log.info("dateList:{}", dateList);
+        //log.info("dateList:{}", dateList);
         String dateString = StringUtils.join(dateList, ",");// 日期以逗号分隔 例如：2022-10-01,2022-10-02,2022-10-03
 
         // 2. 查询每一天的营业额
@@ -62,7 +67,7 @@ public class ReportServiceImpl implements ReportService {
             }
             turnoverList.add(turnover);
         }
-        log.info("turnoverList:{}", turnoverList);
+        //log.info("turnoverList:{}", turnoverList);
 
 
         // 3. 封装数据
@@ -72,5 +77,60 @@ public class ReportServiceImpl implements ReportService {
 
 
         return turnoverReportVO;
+    }
+
+    /**
+     * 获取用户报表
+     * @param begin 开始日期
+     * @param end   结束日期
+     * @return 用户报表
+     */
+    @Override
+    public UserReportVO getUserReport(LocalDate begin, LocalDate end) {
+        // 1. 把开始到结束的每一天的日期计算出来
+        List<LocalDate> dateList = new ArrayList<>();
+        dateList.add(begin);
+        LocalDate tempDate = begin;
+        while (!tempDate.equals(end)) { // 日期不相等 一直循环
+            tempDate = tempDate.plusDays(1);
+            dateList.add(tempDate);
+        }
+        //log.info("dateList:{}", dateList);
+
+        // 2. 查询每一天的用户数和总用户数
+        List<Integer> userList = new ArrayList<>();
+        List<Integer> totalUserList = new ArrayList<>();
+        for (LocalDate localDate : dateList) {
+            // 查询每一天的用户数 是指当天注册的用户数
+            //select count(*) from user where create_time < ？ and create_time >= ？
+            LocalDateTime startDateTime = localDate.atStartOfDay(); // 当天开始时间
+            LocalDateTime endDateTime = LocalDateTime.of(localDate, LocalTime.MAX); // 当天结束时间
+            Map<String,Object> map = new HashMap<>();
+
+            map.put("endDateTime", endDateTime);
+            //查询总用户数
+            Integer totalUserCount = userMapper.countByMap(map); //只有结束时间
+            if(totalUserCount == null){
+                totalUserCount = 0;
+            }
+            totalUserList.add(totalUserCount);
+
+            map.put("startDateTime", startDateTime);
+            //查询当天注册的用户数 也就是新增的用户数
+            Integer userCount = userMapper.countByMap(map); //开始时间和结束时间
+            if(userCount == null){
+                userCount = 0;
+            }
+            userList.add(userCount);
+        }
+
+
+        // 3. 封装数据
+        UserReportVO userReportVO = new UserReportVO();
+        userReportVO.setDateList(StringUtils.join(dateList, ",")); // 日期以逗号分隔 例如：2022-10-01,2022-10-02,2022-10-03
+        userReportVO.setNewUserList(StringUtils.join(userList, ",")); // 用户数以逗号分隔 例如：10,20,30
+        userReportVO.setTotalUserList(StringUtils.join(totalUserList, ",")); // 总用户数以逗号分隔 例如：100,200,300
+
+        return userReportVO;
     }
 }
