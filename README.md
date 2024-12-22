@@ -29,4 +29,4 @@ email：1257811052@qq.com
 + WeChatPay实现微信支付
 + git版本控制
 + 百度地图开放平台实现地图定位
-+ ApacheECharts实现数据可视化
++ 前端使用ApacheECharts实现数据可视化
