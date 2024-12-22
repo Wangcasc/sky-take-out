@@ -4,6 +4,7 @@ import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
 import com.sky.service.ReportService;
 import com.sky.vo.TurnoverReportVO;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@Slf4j
 public class ReportServiceImpl implements ReportService {
 
     @Autowired
@@ -38,6 +40,7 @@ public class ReportServiceImpl implements ReportService {
             tempDate = tempDate.plusDays(1);
             dateList.add(tempDate);
         }
+        log.info("dateList:{}", dateList);
         String dateString = StringUtils.join(dateList, ",");// 日期以逗号分隔 例如：2022-10-01,2022-10-02,2022-10-03
 
         // 2. 查询每一天的营业额
@@ -59,6 +62,8 @@ public class ReportServiceImpl implements ReportService {
             }
             turnoverList.add(turnover);
         }
+        log.info("turnoverList:{}", turnoverList);
+
 
         // 3. 封装数据
         TurnoverReportVO turnoverReportVO = new TurnoverReportVO();

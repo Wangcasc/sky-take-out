@@ -77,10 +77,10 @@
     <select id="sumByMap" resultType="java.lang.Double">
         select sum(amount) from orders
         <where>
-            <if test="beginTime != null">
+            <if test="startDateTime != null">
                 and order_time &gt;= #{startDateTime}
             </if>
-            <if test="endTime != null">
+            <if test="endDateTime != null">
                 and order_time &lt;= #{endDateTime}
             </if>
             <if test="status != null">
