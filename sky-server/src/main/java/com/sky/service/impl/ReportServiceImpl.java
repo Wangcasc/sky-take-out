@@ -4,6 +4,7 @@ import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
+import com.sky.vo.OrderReportVO;
 import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
 import lombok.extern.slf4j.Slf4j;
@@ -132,5 +133,72 @@ public class ReportServiceImpl implements ReportService {
         userReportVO.setTotalUserList(StringUtils.join(totalUserList, ",")); // 总用户数以逗号分隔 例如：100,200,300
 
         return userReportVO;
+    }
+
+    @Override
+    public OrderReportVO getOrderReport(LocalDate begin, LocalDate end) {
+        // 1. 把开始到结束的每一天的日期计算出来
+        List<LocalDate> dateList = new ArrayList<>();
+        dateList.add(begin);
+        LocalDate tempDate = begin;
+        while (!tempDate.equals(end)) { // 日期不相等 一直循环
+            tempDate = tempDate.plusDays(1);
+            dateList.add(tempDate);
+        }
+        //log.info("dateList:{}", dateList);
+
+        // 2. 查询每一天的订单数（完成的有效订单数和所有）
+        List<Integer> orderList = new ArrayList<>();
+        List<Integer> totalOrderList = new ArrayList<>();
+        for (LocalDate localDate : dateList) {
+            // 查询每一天的订单数 是指当天完成的有效订单数
+            //select count(*) from orders where status = ？ and order_time < ？ and order_time >= ？
+            LocalDateTime startDateTime = localDate.atStartOfDay(); // 当天开始时间
+            LocalDateTime endDateTime = LocalDateTime.of(localDate, LocalTime.MAX); // 当天结束时间
+
+            //查询每天有效的订单数
+            Integer orderCount = getCount(Orders.COMPLETED, startDateTime, endDateTime);
+            orderList.add(orderCount);
+
+            //查询每天的订单总数
+            Integer totalOrderCount = getCount(null, startDateTime, endDateTime);
+            totalOrderList.add(totalOrderCount);
+
+        }
+        //计算从开始日期到结束日期的订单总数
+        Integer totalOrderCount = totalOrderList.stream().mapToInt(Integer::intValue).sum();
+
+        //查询从开始日期到结束日期的有效订单数
+        Integer validOrderCount = orderList.stream().mapToInt(Integer::intValue).sum();
+
+        //计算订单完成率
+        Double orderCompletionRate = 0.0;
+        if (totalOrderCount != 0) {
+            orderCompletionRate = validOrderCount * 1.0 / totalOrderCount;
+        }
+
+        // 3. 封装数据
+        OrderReportVO orderReportVO = new OrderReportVO();
+        orderReportVO.setDateList(StringUtils.join(dateList, ",")); // 日期以逗号分隔 例如：2022-10-01,2022-10-02,2022-10-03
+        orderReportVO.setValidOrderCountList(StringUtils.join(orderList, ",")); // 每日有效订单数 例如：10,20,30
+        orderReportVO.setOrderCountList(StringUtils.join(totalOrderList, ",")); // 每日订单总数 例如：100,200,300
+        orderReportVO.setTotalOrderCount(totalOrderCount); // 订单总数
+        orderReportVO.setValidOrderCount(validOrderCount); // 有效订单数
+        orderReportVO.setOrderCompletionRate(orderCompletionRate); // 订单完成率
+
+
+        return orderReportVO;
+    }
+
+    private Integer getCount(Integer status, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+        Map<String,Object> map = new HashMap<>();
+        map.put("status", status); // 已完成 有效订单
+        map.put("startDateTime", startDateTime);
+        map.put("endDateTime", endDateTime);
+        Integer orderCount = orderMapper.countByMap(map);
+        if(orderCount == null){
+            orderCount = 0;
+        }
+        return orderCount;
     }
 }
