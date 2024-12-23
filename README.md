@@ -23,10 +23,11 @@ email：1257811052@qq.com
 + Redis实现缓存 SpringDataRedis 后使用SpringCache实现缓存
 + Swagger2实现接口文档
 + Slf4j实现日志记录
-+ HttpClient实现http请求
++ HttpClient实现http请求 完成与微信后台登录与支付的交互
 + SpringTask实现定时任务
 + WebSocket实现消息推送
 + WeChatPay实现微信支付
 + git版本控制
 + 百度地图开放平台实现地图定位
 + 前端使用ApacheECharts实现数据可视化
++ ApachePOI实现Excel导出

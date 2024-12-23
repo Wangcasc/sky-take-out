@@ -6,6 +6,7 @@ import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -42,4 +43,9 @@ public interface ReportService {
      * @return 销售前10的报表
      */
     SalesTop10ReportVO getSalesTop10Report(LocalDate begin, LocalDate end);
+
+    /**
+     * @param response 响应
+     */
+    void exportExcel(HttpServletResponse response);
 }

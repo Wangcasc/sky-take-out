@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 
 @RestController
@@ -97,6 +99,17 @@ public class ReportController {
         SalesTop10ReportVO salesTop10ReportVO = reportService.getSalesTop10Report(begin, end);
         // 2. 返回结果
         return Result.success(salesTop10ReportVO);
+    }
+
+
+    /**
+     * 导出Excel
+     */
+    @GetMapping("/export")
+    @ApiOperation("导出报表数据")
+    public void exportExcel(HttpServletResponse response) { // 通过HttpServletResponse对象 可以将后端数据返回给前端 用于下载
+        // 1. 调用service查询报表数据
+        reportService.exportExcel(response);
     }
 
 }
