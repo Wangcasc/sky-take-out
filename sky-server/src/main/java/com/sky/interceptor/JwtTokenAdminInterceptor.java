@@ -39,6 +39,9 @@ public class JwtTokenAdminInterceptor implements HandlerInterceptor {
             return true;
         }
 
+        String url = request.getRequestURL().toString();
+        System.out.println("请求: "+url);
+
         //1、从请求头中获取令牌
         String token = request.getHeader(jwtProperties.getAdminTokenName());
 

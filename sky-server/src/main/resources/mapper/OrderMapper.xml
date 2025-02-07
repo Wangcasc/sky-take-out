@@ -50,7 +50,7 @@
     </update>
 
 
-    <select id="pageQuery" resultType="Orders">
+    <select id="pageQuery" resultType="com.sky.entity.Orders">
         select * from orders
         <where>
             <if test="number != null and number!=''">
