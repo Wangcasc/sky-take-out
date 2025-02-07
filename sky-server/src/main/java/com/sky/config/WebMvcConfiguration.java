@@ -108,7 +108,7 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
     /**
      * 扩展SpringMVC的消息转换器
-     * 统一对后端返回的数据进行处理
+     * 统一对后端返回的数据进行处理 这里用于统一时间格式
      * @param converters 消息转换器列表
      */
     @Override
